@@ -17,13 +17,17 @@ class ExampleList extends PolymerElement {
       <style>
         div {
           width: 100%;
-          height: 300px;
+          height: 100%;
           max-height: 400px;
+        }
+
+        boo-list>div {
           background-color: #f0f0f0;
         }
 
-        boo-list {
-          flex: 1 1 auto;
+        boo-list>div.selected {
+          background-color: red;
+          color: white;
         }
       </style>
       <boo-list 
@@ -34,9 +38,7 @@ class ExampleList extends PolymerElement {
         items="[[items]]" gap="50">
 
         <template>
-          <div class="item">
-            [[item.index]]
-          </div>
+          <div>[[item.index]]</div>
         </template>
 
       </boo-list>
@@ -79,12 +81,12 @@ class ExampleList extends PolymerElement {
 
   ready() {
     super.ready();
-    // setTimeout(function() {
-    //   for( let i in this.$.list.elems) {
-    //     this.$.list.elems[i].node.style.height = 10 * (i + 1) + 'px';
-    //   }
-    //   this.$.list.update();
-    // }.bind(this), 500);
+    setTimeout(function() {
+      for( let i in this.$.list.elems) {
+        this.$.list.elems[i].node.style.height = 10 * (i + 1) + 'px';
+      }
+      this.$.list.update();
+    }.bind(this), 500);
   }
 }
 

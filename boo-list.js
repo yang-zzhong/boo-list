@@ -22,9 +22,6 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
         #items {
           position: relative;
         }
-        ::slotted(*) {
-          position: absolute;
-        }
       </style>
 
       <array-selector 
@@ -42,6 +39,10 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
 
   static get properties() {
     return {
+      selected: {
+        observer: '_selectedChanged',
+        notify: true
+      },
       items: {
         type: Array,
         observer: '_itemChanged',
@@ -52,6 +53,10 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
         value: "item"
       },
       multi: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+      toggle: {
         type: Boolean,
         reflectToAttribute: true
       },
@@ -103,6 +108,7 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     let wrapper = document.createElement("div");
     wrapper.addEventListener("click", this._select.bind(this));
     wrapper.addEventListener("tap", this._select.bind(this));
+    wrapper.style.position = 'absolute';
     wrapper.appendChild(item.root);
     this._itemsParent.appendChild(wrapper);
     this.elems[i] = {
@@ -115,26 +121,55 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
 
   _select(e) {
     let item = null;
+    let wrapper = null;
     for(let i = 0; i < this.elems.length; ++i) {
-      if (e.target == this.elems[i].wrapper) {
+      if (this._isParentOf(this.elems[i].node, e.target)) {
         item = this.items[i];
+        wrapper = this.elems[i].node;
+        break;
       }
     }
     this.$.selector.select(item);
-    if (!this.selected(item)) {
-      e.target.classList.add("selected");
-    } else {
-      e.target.classList.remove("selected");
-    }
+    this._selectedChanged(this.selected);
     this.dispatchEvent(new CustomEvent("selected"));
   }
 
-  selected(item) {
-    if (this.multi) {
-      return this.selected.indexOf(item) != -1;
+  _selectedChanged(selected) {
+    if (!selected) {
+      return;
+    }
+    this._removeSelected();
+    if (!this.multi) {
+      let i = this.items.indexOf(selected);
+      this.elems[i].node.classList.add("selected");
+      return;
+    }
+    selected.forEach(function(item) {
+      let i = this.items.indexOf(item);
+      this.elems[i].node.classList.add("selected");
+    }.bind(this));
+  }
+
+  _isParentOf(p, c) {
+    let n = c;
+    while(n != null) {
+      if (p == n) {
+        return true;
+      }
+      n = n.parentNode;
     }
 
-    return this.selected = item;
+    return false;
+  }
+
+  isSelected(item) {
+    return this.$.selector.isSelected(item);
+  }
+
+  _removeSelected() {
+    this.elems.forEach(function(item) {
+      item.node.classList.remove("selected");
+    }.bind(this));
   }
 
   _assignModel(item, model) {
