@@ -4,10 +4,6 @@ import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { PolymerElement } from '@polymer/polymer/polymer-element.js';
 
-let Base = mixinBehaviors([
-  Templatizer
-], PolymerElement);
-
 // const LegacyIronList = customElements.get('iron-list');
 
 /**
@@ -18,7 +14,7 @@ let Base = mixinBehaviors([
  * @polymer
  * @demo demo/index.html
  */
-class BooList extends Base {
+class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
 
   static get template() {
     return html`
@@ -30,11 +26,13 @@ class BooList extends Base {
           position: absolute;
         }
       </style>
+
       <array-selector 
         id="selector" 
         items="{{items}}" 
-        selected="{{selectedItems}}" 
-        selected-item="{{selectedItem}}"></array-selector>
+        selected="{{selected}}"
+        multi="{{multi}}"
+        toggle="{{toggle}}"></array-selector>
 
       <div id="items">
         <slot></slot>
@@ -52,6 +50,10 @@ class BooList extends Base {
       as: {
         type: String,
         value: "item"
+      },
+      multi: {
+        type: Boolean,
+        reflectToAttribute: true
       },
       gap: {
         type: Number,
@@ -99,6 +101,8 @@ class BooList extends Base {
     }
     let item = this.stamp(null);
     let wrapper = document.createElement("div");
+    wrapper.addEventListener("click", this._select.bind(this));
+    wrapper.addEventListener("tap", this._select.bind(this));
     wrapper.appendChild(item.root);
     this._itemsParent.appendChild(wrapper);
     this.elems[i] = {
@@ -107,6 +111,30 @@ class BooList extends Base {
     };
 
     return this.elems[i];
+  }
+
+  _select(e) {
+    let item = null;
+    for(let i = 0; i < this.elems.length; ++i) {
+      if (e.target == this.elems[i].wrapper) {
+        item = this.items[i];
+      }
+    }
+    this.$.selector.select(item);
+    if (!this.selected(item)) {
+      e.target.classList.add("selected");
+    } else {
+      e.target.classList.remove("selected");
+    }
+    this.dispatchEvent(new CustomEvent("selected"));
+  }
+
+  selected(item) {
+    if (this.multi) {
+      return this.selected.indexOf(item) != -1;
+    }
+
+    return this.selected = item;
   }
 
   _assignModel(item, model) {

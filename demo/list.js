@@ -26,18 +26,26 @@ class ExampleList extends PolymerElement {
           flex: 1 1 auto;
         }
       </style>
-      <boo-list id="list" cols="2" items="[[items]]" gap="50">
+      <boo-list 
+        id="list" 
+        cols="2" 
+        selected="{{selected}}"
+        on-selected="_selected"
+        items="[[items]]" gap="50">
+
         <template>
           <div class="item">
             [[item.index]]
           </div>
         </template>
+
       </boo-list>
     `;
   }
 
   static get properties() {
     return {
+      selected: Object,
       items: {
         type: Array,
         value: [{
@@ -63,6 +71,10 @@ class ExampleList extends PolymerElement {
         }]
       },
     };
+  }
+
+  _selected() {
+    console.log(this.selected);
   }
 
   ready() {
