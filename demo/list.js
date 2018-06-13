@@ -33,6 +33,8 @@ class ExampleList extends PolymerElement {
       <boo-list 
         id="list" 
         cols="2" 
+        multi
+        toggle
         selected="{{selected}}"
         on-selected="_selected"
         items="[[items]]" gap="50">

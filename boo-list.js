@@ -107,7 +107,6 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     let item = this.stamp(null);
     let wrapper = document.createElement("div");
     wrapper.addEventListener("click", this._select.bind(this));
-    wrapper.addEventListener("tap", this._select.bind(this));
     wrapper.style.position = 'absolute';
     wrapper.appendChild(item.root);
     this._itemsParent.appendChild(wrapper);
