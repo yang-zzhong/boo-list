@@ -17,7 +17,7 @@ class ExampleList extends PolymerElement {
       <style>
         div {
           width: 100%;
-          height: 300px;
+          max-height: 400px;
           background-color: #f0f0f0;
         }
 
@@ -25,7 +25,7 @@ class ExampleList extends PolymerElement {
           flex: 1 1 auto;
         }
       </style>
-      <boo-list id="list" cols="3" items="[[items]]" waterfall>
+      <boo-list id="list" cols="3" items="[[items]]" gap="50">
         <template>
           <div class="item">
             [[item.index]]
@@ -67,8 +67,8 @@ class ExampleList extends PolymerElement {
   ready() {
     super.ready();
     setTimeout(function() {
-      for (let i in this.$.list.elems) {
-        this.$.list.elems[i].item.style.height = (Math.random() * 500) + 'px';
+      for( let i in this.$.list.elems) {
+        this.$.list.elems[i].node.style.height = 10 * (i + 1) + 'px';
       }
       this.$.list.update();
     }.bind(this), 500);

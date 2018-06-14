@@ -49,6 +49,10 @@ class BooList extends Base {
         observer: '_itemChanged',
         notify: true
       },
+      as: {
+        type: String,
+        value: "item"
+      },
       gap: {
         type: Number,
         value: 5,
@@ -77,26 +81,33 @@ class BooList extends Base {
   }
 
   _itemChanged() {
-    let items = this.items;
-    this._empty();
-    this._ensureTemplatized();
-    let colWidth = this._colWidth();
-    for(let i in items) {
-      let item = this._item(items[i]);
-      let rect = item.getBoundingClientRect();
-      this.elems[i] = {
-        item: item,
-        height: rect.height,
-        width: colWidth,
-        left: this._left(i, colWidth),
-        top: this._top(i)
-      };
-    }
     this._update();
   }
 
   update() {
-    this._itemChanged();
+    this._update(true);
+  }
+
+  elem(i) {
+    if (this.elems[i]) {
+      return this.elems[i];
+    }
+    let item = this.stamp(null);
+    let wrapper = document.createElement("div");
+    wrapper.setAttribute("class","__item__");
+    wrapper.appendChild(item.root);
+    this._itemsParent.appendChild(wrapper);
+    this.elems[i] = {
+      node: wrapper,
+      template: item
+    };
+
+    return this.elems[i];
+  }
+
+  _assignModel(item, model) {
+    item._setPendingProperty(this.as, model);
+    item._flushProperties && item._flushProperties(true);
   }
 
   _empty() {
@@ -108,20 +119,22 @@ class BooList extends Base {
     }
   }
 
-  _item(model) {
-    let item = this.stamp({item: model});
-    let wrapper = document.createElement("div");
-    wrapper.setAttribute("class","__item__");
-    wrapper.appendChild(item.root);
-    this._itemsParent.appendChild(wrapper);
-    return wrapper;
-  }
-
-  _update() {
+  _update(debug) {
+    let items = this.items;
+    this._ensureTemplatized();
+    for(let i in items) {
+      let item = this.elem(i);
+      this._assignModel(item.template, items[i]);
+    }
+    for (let i = items.length; i < this.elems.length; i++) {
+      this._itemsParent.removeChild(this.elems[i].node);
+      delete(this.elems[i]);
+    }
+    let colWidth = this._colWidth();
     for(let i in this.elems) {
-      this.elems[i].item.style.width = this.elems[i].width + 'px';
-      this.elems[i].item.style.left = this.elems[i].left + 'px';
-      this.elems[i].item.style.top = this.elems[i].top + 'px';
+      this.elems[i].node.style.width = colWidth + 'px';
+      this.elems[i].node.style.left = this._left(i, colWidth) + 'px';
+      this.elems[i].node.style.top = this._top(i) + 'px';
     }
     this.$.items.style.height = this._height() + 'px';
   }
@@ -133,12 +146,13 @@ class BooList extends Base {
       if (idx && i >= idx - 1) {
         break;
       }
-      if (this._col(i) == col) {
-        height += this.elems[i].height;
-        gapLen++;
+      if (this._col(i) != col) {
+        continue;
       }
+      let rect = this.elems[i].node.getBoundingClientRect();
+      height += rect.height + this.gap;
     }
-    return height + (gapLen - 1) * this.gap;
+    return height;
   }
 
   _height() {
@@ -167,12 +181,13 @@ class BooList extends Base {
 
   _top(index) {
     let col = this._col(index);
-    return this._colHeight(col, index);
+    let res = this._colHeight(col, index);
+    return res;
   }
 
   _colWidth() {
     let rect = this.$.items.getBoundingClientRect();
-    return rect.width / this.cols - this.gap * (this.cols - 1);
+    return (rect.width - this.gap * (this.cols - 1)) / this.cols;
   }
 
   /**
