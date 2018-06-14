@@ -109,14 +109,14 @@ class BooList extends Base {
     item._flushProperties && item._flushProperties(true);
   }
 
-  _update(debug) {
+  _update() {
     let items = this.items;
     this._ensureTemplatized();
     for(let i in items) {
       let item = this.elem(i);
       this._assignModel(item.template, items[i]);
     }
-    for (let i = items.length; i < this.elems.length; i++) {
+    for (let i = items.length; i < this.elems.length;) {
       this._itemsParent.removeChild(this.elems[i].node);
       this.elems.splice(i, 1);
     }
