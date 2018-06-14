@@ -116,8 +116,12 @@ class BooList extends Base {
       let item = this.elem(i);
       this._assignModel(item.template, items[i]);
     }
-    for (let i = items.length; i < this.elems.length;) {
-      this._itemsParent.removeChild(this.elems[i].node);
+    while(this.elems[items.length]) {
+      let i = items.length;
+      let parent = this.elems[i].node.parentNode;
+      if (parent) {
+        parent.removeChild(this.elems[i].node);
+      }
       this.elems.splice(i, 1);
     }
     let colWidth = this._colWidth();
