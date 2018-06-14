@@ -94,7 +94,6 @@ class BooList extends Base {
     }
     let item = this.stamp(null);
     let wrapper = document.createElement("div");
-    wrapper.setAttribute("class","__item__");
     wrapper.appendChild(item.root);
     this._itemsParent.appendChild(wrapper);
     this.elems[i] = {
@@ -110,15 +109,6 @@ class BooList extends Base {
     item._flushProperties && item._flushProperties(true);
   }
 
-  _empty() {
-    let old = this._itemsParent.querySelectorAll(".__item__");
-    for(let i in old) {
-      if (typeof old[i] == 'object') {
-        this._itemsParent.removeChild(old[i]);
-      }
-    }
-  }
-
   _update(debug) {
     let items = this.items;
     this._ensureTemplatized();
@@ -128,7 +118,7 @@ class BooList extends Base {
     }
     for (let i = items.length; i < this.elems.length; i++) {
       this._itemsParent.removeChild(this.elems[i].node);
-      delete(this.elems[i]);
+      this.elems.splice(i, 1);
     }
     let colWidth = this._colWidth();
     for(let i in this.elems) {
