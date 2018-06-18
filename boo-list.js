@@ -137,7 +137,7 @@ class BooList extends Base {
     let height = 0;
     let gapLen = 0;
     for (let i in this.elems) {
-      if (idx && i >= idx - 1) {
+      if (idx != undefined && i >= idx - (this.cols > 1 ? 1 : 0)) {
         break;
       }
       if (this._col(i) != col) {
