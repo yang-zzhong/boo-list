@@ -85,7 +85,7 @@ class BooList extends Base {
   }
 
   update() {
-    return new Polymer(function(resolved) {
+    return new Promise(function(resolved) {
       setTimeout(function() {
         this._update();
         resolved();
