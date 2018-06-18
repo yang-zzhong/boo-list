@@ -85,7 +85,12 @@ class BooList extends Base {
   }
 
   update() {
-    this._update(true);
+    return new Polymer(function(resolved) {
+      setTimeout(function() {
+        this._update();
+        resolved();
+      }.bind(this), 10);
+    }.bind(this));
   }
 
   elem(i) {
