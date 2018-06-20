@@ -45,7 +45,7 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
       },
       items: {
         type: Array,
-        observer: '_itemChanged',
+        observer: '_update',
         notify: true
       },
       as: {
@@ -71,8 +71,13 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
       },
       elems: {
         type: Array,
+        computed: '_computeElems(__elems)',
+      },
+      __instanceId: String,
+      __elems: {
+        type: Array,
         value: []
-      }
+      },
     };
   }
 
@@ -80,29 +85,22 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
    * The parent node for the _userTemplate.
    */
   get _itemsParent() {
-    return dom(dom(this._userTemplate).parentNode);
+    return this._userTemplate.parentNode;
   }
 
-  conncectedCallback() {
-    super.connectedCallback();
-  }
-
-  _itemChanged() {
-    this._update();
+  constructor() {
+    super();
+    this.__instanceId = this._instanceId()
+    this.__elems[this.__instanceId] = [];
   }
 
   update() {
-    return new Promise(function(resolved) {
-      setTimeout(function() {
-        this._update();
-        resolved();
-      }.bind(this), 10);
-    }.bind(this));
+    this._update();
   }
 
   elem(i) {
-    if (this.elems[i]) {
-      return this.elems[i];
+    if (this.__elems[this.__instanceId][i]) {
+      return this.__elems[this.__instanceId][i];
     }
     let item = this.stamp(null);
     let wrapper = document.createElement("div");
@@ -110,12 +108,12 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     wrapper.style.position = 'absolute';
     wrapper.appendChild(item.root);
     this._itemsParent.appendChild(wrapper);
-    this.elems[i] = {
+    this.__elems[this.__instanceId][i] = {
       node: wrapper,
       template: item
     };
 
-    return this.elems[i];
+    return this.__elems[this.__instanceId][i];
   }
 
   _select(e) {
@@ -176,6 +174,10 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     item._flushProperties && item._flushProperties(true);
   }
 
+  _computeElems(__elems) {
+    return __elems[this.__instanceId];
+  }
+
   _update() {
     let items = this.items;
     this._ensureTemplatized();
@@ -183,14 +185,15 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
       let item = this.elem(i);
       this._assignModel(item.template, items[i]);
     }
-    while(this.elems[items.length]) {
+    while(this.__elems[this.__instanceId][items.length]) {
       let i = items.length;
-      let parent = this.elems[i].node.parentNode;
+      let parent = this.__elems[this.__instanceId][i].node.parentNode;
       if (parent) {
         parent.removeChild(this.elems[i].node);
       }
-      this.elems.splice(i, 1);
+      this.__elems[this.__instanceId].splice(i, 1);
     }
+    this.notifyPath("__elems");
     let colWidth = this._colWidth();
     for(let i in this.elems) {
       this.elems[i].node.style.width = colWidth + 'px';
@@ -249,6 +252,10 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
   _colWidth() {
     let rect = this.$.items.getBoundingClientRect();
     return (rect.width - this.gap * (this.cols - 1)) / this.cols;
+  }
+
+  _instanceId() {
+    return Math.random().toString(36).substr(2);
   }
 
   /**
