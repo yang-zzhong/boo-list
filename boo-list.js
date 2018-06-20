@@ -104,7 +104,6 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     }
     let item = this.stamp(null);
     let wrapper = document.createElement("div");
-    wrapper.addEventListener("click", this._select.bind(this));
     wrapper.style.position = 'absolute';
     wrapper.appendChild(item.root);
     this._itemsParent.appendChild(wrapper);
@@ -116,16 +115,7 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     return this.__elems[this.__instanceId][i];
   }
 
-  _select(e) {
-    let item = null;
-    let wrapper = null;
-    for(let i = 0; i < this.elems.length; ++i) {
-      if (this._isParentOf(this.elems[i].node, e.target)) {
-        item = this.items[i];
-        wrapper = this.elems[i].node;
-        break;
-      }
-    }
+  select(item) {
     this.$.selector.select(item);
     this._selectedChanged(this.selected);
     this.dispatchEvent(new CustomEvent("selected"));
@@ -145,18 +135,6 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
       let i = this.items.indexOf(item);
       this.elems[i].node.classList.add("selected");
     }.bind(this));
-  }
-
-  _isParentOf(p, c) {
-    let n = c;
-    while(n != null) {
-      if (p == n) {
-        return true;
-      }
-      n = n.parentNode;
-    }
-
-    return false;
   }
 
   isSelected(item) {

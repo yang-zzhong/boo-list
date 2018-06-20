@@ -36,11 +36,10 @@ class ExampleList extends PolymerElement {
         multi
         toggle
         selected="{{selected}}"
-        on-selected="_selected"
         items="[[items]]" gap="50">
 
         <template>
-          <div>[[item.index]]</div>
+          <div on-click="_select">[[item.index]]</div>
         </template>
 
       </boo-list>
@@ -77,8 +76,9 @@ class ExampleList extends PolymerElement {
     };
   }
 
-  _selected() {
-    console.log(this.selected);
+  _select(e) {
+    let model = this.$.list.modelForElement(e.target);
+    this.$.list.select(model.item);
   }
 
   ready() {
