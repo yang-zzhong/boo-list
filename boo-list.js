@@ -196,8 +196,12 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
 
   _height() {
     let height = 0;
+    if (!this.elems || this.elems && this.elems.length == 0) {
+      return height;
+    }
     let items = this.elems.length - 1;
-    for (let i = 0; i < this.cols; ++i) {
+    let len = Math.min(this.cols, items + 1);
+    for (let i = 0; i < len; ++i) {
       height = Math.max(this._colH[items - i], height);
     }
     if (height > 0) {
