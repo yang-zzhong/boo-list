@@ -17,7 +17,7 @@ class ExampleList extends PolymerElement {
       <style>
         div {
           width: 100%;
-          height: 300px;
+          height: 100%;
           max-height: 400px;
           background-color: #f0f0f0;
         }
@@ -67,12 +67,12 @@ class ExampleList extends PolymerElement {
 
   ready() {
     super.ready();
-    // setTimeout(function() {
-    //   for( let i in this.$.list.elems) {
-    //     this.$.list.elems[i].node.style.height = 10 * (i + 1) + 'px';
-    //   }
-    //   this.$.list.update();
-    // }.bind(this), 500);
+    setTimeout(function() {
+      for( let i in this.$.list.elems) {
+        this.$.list.elems[i].node.style.height = 10 * (i + 1) + 'px';
+      }
+      this.$.list.update();
+    }.bind(this), 500);
   }
 }
 

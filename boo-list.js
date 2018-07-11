@@ -26,9 +26,6 @@ class BooList extends Base {
         #items {
           position: relative;
         }
-        ::slotted(*) {
-          position: absolute;
-        }
       </style>
       <array-selector 
         id="selector" 
@@ -99,6 +96,7 @@ class BooList extends Base {
     }
     let item = this.stamp(null);
     let wrapper = document.createElement("div");
+    wrapper.style.position = 'absolute';
     wrapper.appendChild(item.root);
     this._itemsParent.appendChild(wrapper);
     this.elems[i] = {
