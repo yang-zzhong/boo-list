@@ -32,12 +32,11 @@ class ExampleList extends PolymerElement {
       </style>
       <boo-list 
         id="list" 
-        cols="2" 
+        cols="[[cols]]" 
         multi
         toggle
         selected="{{selected}}"
-        on-selected="_selected"
-        items="[[items]]" gap="50">
+        on-selected="_selected" gap="50">
 
         <template>
           <div>[[item.index]]</div>
@@ -50,6 +49,12 @@ class ExampleList extends PolymerElement {
   static get properties() {
     return {
       selected: Object,
+      change: {
+        type: Boolean,
+        observer: '_changed',
+        value: false
+      },
+      cols: Number,
       items: {
         type: Array,
         value: [{
@@ -83,12 +88,57 @@ class ExampleList extends PolymerElement {
 
   ready() {
     super.ready();
-    setTimeout(function() {
-      for( let i in this.$.list.elems) {
-        this.$.list.elems[i].node.style.height = 10 * (i + 1) + 'px';
-      }
-      this.$.list.update();
-    }.bind(this), 500);
+  }
+
+  _changed(changed) {
+    if (changed) {
+      this.$.list.items = [{
+        index: 0,
+      }, {
+        index: 0,
+      }, {
+        index: 0,
+      }, {
+        index: 0,
+      }, {
+        index: 0,
+      }, {
+        index: 0,
+      }, {
+        index: 0,
+      }];
+      let timer = setInterval(function() {
+        for( let i in this.$.list.elems) {
+          this.$.list.elems[i].node.style.height = Math.random() * 100 + 'px';
+        }
+        this.$.list.update();
+      }.bind(this), 1000);
+      setTimeout(function() {
+        clearInterval(timer);
+      }, 5000);
+      setTimeout(function() {
+        this.$.list.update();
+      }.bind(this), 100);
+    } else {
+      this.$.list.items = [{
+        index: 1,
+      }, {
+        index: 1,
+      }, {
+        index: 1,
+      }, {
+        index: 1,
+      }, {
+        index: 1,
+      }, {
+        index: 1,
+      }, {
+        index: 1,
+      }];
+      setTimeout(function() {
+        this.$.list.update();
+      }.bind(this), 100);
+    }
   }
 }
 

@@ -39,13 +39,19 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
 
   static get properties() {
     return {
+      noSelected: {
+        type: Boolean,
+        reflectToAttribute: true,
+        value: false
+      },
       selected: {
         observer: '_selectedChanged',
         notify: true
       },
       items: {
         type: Array,
-        observer: '_itemChanged',
+        observer: '_update',
+        value: [],
         notify: true
       },
       as: {
@@ -62,17 +68,23 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
       },
       gap: {
         type: Number,
+        observer: '_update',
+        reflectToAttribute: true,
         value: 5,
       },
       cols: {
         type: Number,
+        reflectToAttribute: true,
         observer: '_update',
         value: 1
       },
       elems: {
         type: Array,
+        reflectToAttribute: true,
         value: []
-      }
+      },
+      _updating: Boolean,
+      _updateTimer: Object,
     };
   }
 
@@ -80,24 +92,11 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
    * The parent node for the _userTemplate.
    */
   get _itemsParent() {
-    return dom(dom(this._userTemplate).parentNode);
-  }
-
-  conncectedCallback() {
-    super.connectedCallback();
-  }
-
-  _itemChanged() {
-    this._update();
+    return this._userTemplate.parentNode;
   }
 
   update() {
-    return new Promise(function(resolved) {
-      setTimeout(function() {
-        this._update();
-        resolved();
-      }.bind(this), 10);
-    }.bind(this));
+    this._update();
   }
 
   elem(i) {
@@ -119,6 +118,9 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
   }
 
   _select(e) {
+    if (this.noSelected) {
+      return;
+    }
     let item = null;
     let wrapper = null;
     for(let i = 0; i < this.elems.length; ++i) {
@@ -183,13 +185,15 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
       let item = this.elem(i);
       this._assignModel(item.template, items[i]);
     }
-    while(this.elems[items.length]) {
-      let i = items.length;
-      let parent = this.elems[i].node.parentNode;
-      if (parent) {
-        parent.removeChild(this.elems[i].node);
+    if (typeof items == 'object') {
+      while(this.elems[items.length]) {
+        let i = items.length;
+        let parent = this.elems[i].node.parentNode;
+        if (parent) {
+          parent.removeChild(this.elems[i].node);
+        }
+        this.elems.splice(i, 1);
       }
-      this.elems.splice(i, 1);
     }
     let colWidth = this._colWidth();
     for(let i in this.elems) {
@@ -202,17 +206,22 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
 
   _colHeight(col, idx) {
     let height = 0;
-    let gapLen = 0;
-    for (let i in this.elems) {
-      if (idx != undefined && i >= idx - (this.cols > 1 ? 1 : 0)) {
-        break;
-      }
-      if (this._col(i) != col) {
-        continue;
-      }
+    idx = idx || this.elems.length - 1;
+    for(let i = (col - 1); i < idx; i += this.cols) {
       let rect = this.elems[i].node.getBoundingClientRect();
       height += rect.height + this.gap;
     }
+    // let height = 0;
+    // for (let i in this.elems) {
+    //   if (idx != undefined && i >= idx - (this.cols > 1 ? 1 : 0)) {
+    //     break;
+    //   }
+    //   if (this._col(i) != col) {
+    //     continue;
+    //   }
+    //   let rect = this.elems[i].node.getBoundingClientRect();
+    //   height += rect.height + this.gap;
+    // }
     return height;
   }
 
