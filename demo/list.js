@@ -15,12 +15,6 @@ class ExampleList extends PolymerElement {
   static get template() {
     return html`
       <style>
-        div {
-          width: 100%;
-          height: 100%;
-          max-height: 400px;
-        }
-
         boo-list>div {
           background-color: #f0f0f0;
         }
@@ -35,11 +29,12 @@ class ExampleList extends PolymerElement {
         cols="[[cols]]" 
         multi
         toggle
+        items="[[items]]"
         selected="{{selected}}"
-        on-selected="_selected" gap="50">
+        gap="50">
 
         <template>
-          <div>[[item.index]]</div>
+          <div on-click="_select" style="height: [[item.height]]px">[[item.index]]</div>
         </template>
 
       </boo-list>
@@ -55,35 +50,13 @@ class ExampleList extends PolymerElement {
         value: false
       },
       cols: Number,
-      items: {
-        type: Array,
-        value: [{
-          index: 1
-        },{
-          index: 2
-        },{
-          index: 3
-        },{
-          index: 4
-        },{
-          index: 5
-        },{
-          index: 6
-        },{
-          index: 7
-        },{
-          index: 8
-        },{
-          index: 9
-        }, {
-          index: 10
-        }]
-      },
+      items: Array,
     };
   }
 
-  _selected() {
-    console.log(this.selected);
+  _select(e) {
+    let model = this.$.list.modelForElement(e.target);
+    this.$.list.select(model.item);
   }
 
   ready() {
@@ -91,54 +64,16 @@ class ExampleList extends PolymerElement {
   }
 
   _changed(changed) {
-    if (changed) {
-      this.$.list.items = [{
-        index: 0,
-      }, {
-        index: 0,
-      }, {
-        index: 0,
-      }, {
-        index: 0,
-      }, {
-        index: 0,
-      }, {
-        index: 0,
-      }, {
-        index: 0,
-      }];
-      let timer = setInterval(function() {
-        for( let i in this.$.list.elems) {
-          this.$.list.elems[i].node.style.height = Math.random() * 100 + 'px';
-        }
-        this.$.list.update();
-      }.bind(this), 1000);
-      setTimeout(function() {
-        clearInterval(timer);
-      }, 5000);
-      setTimeout(function() {
-        this.$.list.update();
-      }.bind(this), 100);
-    } else {
-      this.$.list.items = [{
-        index: 1,
-      }, {
-        index: 1,
-      }, {
-        index: 1,
-      }, {
-        index: 1,
-      }, {
-        index: 1,
-      }, {
-        index: 1,
-      }, {
-        index: 1,
-      }];
-      setTimeout(function() {
-        this.$.list.update();
-      }.bind(this), 100);
-    }
+    setTimeout(function() {
+      let items = [];
+      for(let i = 0; i < 100; i++) {
+        items.push({
+          index: i,
+          height: Math.random() * 100
+        });
+      }
+      this.items = items;
+    }.bind(this), 1000);
   }
 }
 
