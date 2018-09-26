@@ -137,13 +137,15 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     this._removeSelected();
     if (!this.multi) {
       let i = this.items.indexOf(selected);
-      this.elems[i].node.classList.add("selected");
+      if (i != -1) {
+        this.elems[i].node.classList.add("selected");
+      }
       return;
     }
-    selected.forEach(function(item) {
+    selected.forEach(item => {
       let i = this.items.indexOf(item);
       this.elems[i].node.classList.add("selected");
-    }.bind(this));
+    });
   }
 
   isSelected(item) {
@@ -151,9 +153,9 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
   }
 
   _removeSelected() {
-    this.elems.forEach(function(item) {
+    this.elems.forEach(item => {
       item.node.classList.remove("selected");
-    }.bind(this));
+    });
   }
 
   _assignModel(item, model) {
