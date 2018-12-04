@@ -20,6 +20,7 @@ class BooList extends mixinBehaviors([ Templatizer ], PolymerElement) {
     return html`
       <style>
         #items {
+          @apply --boo-list-wrapper;
           position: relative;
         }
       </style>
